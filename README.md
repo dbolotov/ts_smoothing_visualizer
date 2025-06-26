@@ -2,17 +2,28 @@
   <img src="app_screenshot.png" width="600" alt="App Preview">
 </p>
 
-# Time Series Smoothing Visualizer
 
-An interactive Streamlit app for exploring time series smoothing methods across a variety of datasets. 
+# Time Series Smoothing: an Interactive Visualizer
 
-The app was built to demonstrate different smoothing techniques and how they affect noisy time series data.
+**▶ [Try the App](https://your-streamlit-app-url-here)**
 
-The methods visualized are: Moving Average, Estimated Moving Average, Savitzky-Golay, LOESS, Gaussian filter, and Kalman filter.
+This app shows how different smoothing methods behave on noisy time series. It’s built with Streamlit and includes both real and synthetic datasets.
 
-This directory also includes a notebook with some initial plotting and exploration of the noisy sine dataset.
+**Features**
+- Adjustable smoothing parameters
+- Visual comparison across methods
+- 5 datasets
 
-## Datasets and Licensing
+**Supported methods**
+- Moving Average
+- Exponential Moving Average
+- Savitzky-Golay
+- LOESS
+- Gaussian Filter
+- Kalman Filter
+
+
+## Datasets
 
 This project uses a mix of real-world and synthetic datasets. Below are the sources and licensing information:
 
@@ -23,9 +34,9 @@ This project uses a mix of real-world and synthetic datasets. Below are the sour
   Weather time series from [Weather Long-term Time Series Forecasting](https://www.kaggle.com/datasets/alistairking/weather-long-term-time-series-forecasting) on Kaggle. Licensed under the [MIT License](https://www.mit.edu/~amini/LICENSE.md).
 
 - **Noisy Sine**  
-  Synthetic noisy sine wave generated for this project.
+  Synthetic noisy sine wave, created for this project.
 
-- **Process Modes and Anomalies**  
+- **Process Anomalies**  
   Synthetic dataset simulating different industrial operating modes and injected anomalies, created for this project.
 
 
