@@ -5,7 +5,7 @@
 
 # Time Series Smoothing: an Interactive Visualizer
 
-<a href="https://your-streamlit-app-url" target="_blank">▶ Try the App</a>
+<a href="https://timeseriessmoothing.streamlit.app/" target="_blank">▶ Try the App</a>
 
 This repository contains the code for a Streamlit app that visualizes time series smoothing techniques. It includes both real and synthetic datasets and lets you compare how different methods behave with adjustable parameters.
 
