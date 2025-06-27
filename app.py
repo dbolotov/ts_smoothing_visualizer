@@ -11,18 +11,20 @@ from pykalman import KalmanFilter
 # Load data
 BASE_DIR = os.path.dirname(__file__)
 
+
 def load_dataset(name):
     path = os.path.join(BASE_DIR, "data", f"{name}.csv")
     df = pd.read_csv(path, parse_dates=["timestamp"])
     df.set_index("timestamp", inplace=True)
     return df
 
+
 dataset_options = {
     "Sunspots": "sunspots",
     "Noisy Sine": "noisy_sine",
     "Humidity": "long_term_weather_rh",
     "Wind Speed": "long_term_weather_wv",
-    "Process Anomalies": "process_anomalies"
+    "Process Anomalies": "process_anomalies",
 }
 
 # Set Layout to "wide"
@@ -112,12 +114,12 @@ with left_col:
 
     # Dataset blurbs
     dataset_blurbs = {
-    "Sunspots": "Daily counts of sunspots on the Sun's surface.",
-    "Noisy Sine": "A synthetic sine wave with added noise.",
-    "Humidity": "Relative humidity readings from a long-term weather monitoring station.",
-    "Wind Speed": "Wind speed readings (m/s) from a long-term weather monitoring station.",
-    "Process Anomalies": "Synthetic industrial process with 4 operating modes and 3 injected anomalies."
-}
+        "Sunspots": "Daily counts of sunspots on the Sun's surface.",
+        "Noisy Sine": "A synthetic sine wave with added noise.",
+        "Humidity": "Relative humidity readings from a long-term weather monitoring station.",
+        "Wind Speed": "Wind speed readings (m/s) from a long-term weather monitoring station.",
+        "Process Anomalies": "Synthetic industrial process with 4 operating modes and 3 injected anomalies.",
+    }
     # Show dataset blurb
     st.caption(dataset_blurbs.get(selected_label, ""))
 
@@ -146,7 +148,20 @@ with left_col:
             f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["MA"]}"></span>Moving Avg</div>',
             unsafe_allow_html=True,
         )
-        ma_window = st.slider("Window", 3, 51, 15, step=2, key="ma")
+        ma_window = st.slider(
+            "Window",
+            3,
+            51,
+            15,
+            step=2,
+            key="ma",
+            help=(
+    "**Moving Average (Rolling Mean)**: Replaces each point with the average of nearby values in a fixed window.\n"
+    "Simple and fast, it removes short-term fluctuations and highlights trends.\n"
+    "Limitations: Introduces lag and blunts sharp features.\n\n"
+    "**Window Size**: Number of data points averaged at each step. Larger = smoother but laggier."
+),
+        )
 
     with col2:
         show_ema = st.checkbox("", value=True, key="show_ema")
@@ -154,7 +169,20 @@ with left_col:
             f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["EMA"]}"></span>EMA</div>',
             unsafe_allow_html=True,
         )
-        ema_alpha = st.slider("Alpha", 0.01, 1.0, 0.1, step=0.01, key="ema")
+        ema_alpha = st.slider(
+            "Alpha",
+            0.01,
+            1.0,
+            0.1,
+            step=0.01,
+            key="ema",
+            help=(
+    "**Exponential Moving Average (EMA)**: Averages past values with more weight on recent data.\n"
+    "Responsive and causal (only uses past and present), good for real-time use.\n"
+    "Limitations: Can still lag and smooth too little if alpha is too small.\n\n"
+    "**Alpha**: Smoothing factor between 0 and 1. Higher = quicker response, less smoothing."
+),
+        )
 
     with col3:
         show_savgol = st.checkbox("", value=False, key="show_sg")
@@ -162,7 +190,21 @@ with left_col:
             f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["SavGol"]}"></span>SavGol</div>',
             unsafe_allow_html=True,
         )
-        sg_window = st.slider("Window", 5, 51, 15, step=2, key="sg_win")
+        sg_window = st.slider(
+            "Window",
+            5,
+            51,
+            15,
+            step=2,
+            key="sg_win",
+            help=(
+                "**Savitzky–Golay Filter**: Fits a polynomial to a local window.\n"
+                "Good for preserving local features like peaks and valleys better than moving average.\n"
+                "Limitations: can amplify noise if parameters are poorly chosen; requires enough points to support the polynomial order.\n\n"
+"**Window Size**: Number of points used in each fit (must be odd).\n\n"
+    "**Polynomial Degree**: Controls how flexible the fit is; higher = more responsive to structure."
+            ),
+        )
         sg_poly = st.slider("Poly", 1, 5, 2, key="sg_poly")
 
     with col4:
@@ -171,7 +213,20 @@ with left_col:
             f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["LOESS"]}"></span>LOESS</div>',
             unsafe_allow_html=True,
         )
-        loess_frac = st.slider("Frac", 0.01, 0.5, 0.05, step=0.01, key="loess")
+        loess_frac = st.slider(
+            "Frac",
+            0.01,
+            0.5,
+            0.05,
+            step=0.01,
+            key="loess",
+            help=(
+                "**LOESS (LOWESS)**: Fits a local regression for each point using neighboring data."
+                "Good for flexible trend fitting, especially for nonlinear or slowly-varying trends.\n"
+                "Limitations: slower for large datasets, may overfit if fraction is too low.\n\n"
+                "**Frac**: proportion of the dataset used to compute each local regression."
+            ),
+        )
 
     with col5:
         show_gauss = st.checkbox("", value=False, key="show_gauss")
@@ -179,7 +234,20 @@ with left_col:
             f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["Gaussian"]}"></span>Gaussian</div>',
             unsafe_allow_html=True,
         )
-        gauss_sigma = st.slider("Sigma", 0.1, 10.0, 2.0, step=0.1, key="gauss")
+        gauss_sigma = st.slider(
+            "Sigma",
+            0.1,
+            10.0,
+            2.0,
+            step=0.1,
+            key="gauss",
+            help=(
+                "**Gaussian Filter**: Applies a weighted average where weights follow a Gaussian distribution.\n"
+                "Good for reducing noise while still preserving overall shape.\n"
+                "Limitations: smoothing can blur sharp transitions.\n\n"
+                "**Sigma**: standard deviation of the Gaussian kernel, which controls the smoothing amount."
+            ),
+        )
 
     with col6:
         show_kalman = st.checkbox("", value=True, key="show_kf")
@@ -187,7 +255,21 @@ with left_col:
             f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["Kalman"]}"></span>Kalman</div>',
             unsafe_allow_html=True,
         )
-        kf_transition_noise = st.slider("Tr std", 0.001, 1.0, 0.05, step=0.01, key="kf_trans")
+        kf_transition_noise = st.slider(
+            "Tr std",
+            0.001,
+            1.0,
+            0.05,
+            step=0.01,
+            key="kf_trans",
+            help=(
+                "**Kalman Filter**: Uses a probabilistic model to estimate system state from noisy observations.\n"
+                "Good for dynamic smoothing, handling noisy or missing data, and adapting over time.\n"
+                "Limitations: more complex, sensitive to parameter tuning, and assumes linear dynamics.\n\n"
+                "**Tr std**: Transition standard deviation. Expected noise in the process’s internal dynamics.\n\n"
+                "**Obs std**: Observation standard deviation. Expected noise in the observed data."
+            ),
+        )
         kf_obs_noise = st.slider("Obs std", 0.001, 1.0, 0.2, step=0.01, key="kf_obs")
 
 # --- Smoothing Calculations ---
@@ -223,17 +305,65 @@ fig.add_trace(
     )
 )
 if show_ma:
-    fig.add_trace(go.Scatter(x=df.index, y=df["ma"], name="MA", line=dict(color=method_colors["MA"], width=sm_width), opacity=smooth_opacity))
+    fig.add_trace(
+        go.Scatter(
+            x=df.index,
+            y=df["ma"],
+            name="MA",
+            line=dict(color=method_colors["MA"], width=sm_width),
+            opacity=smooth_opacity,
+        )
+    )
 if show_ema:
-    fig.add_trace(go.Scatter(x=df.index, y=df["ema"], name="EMA", line=dict(color=method_colors["EMA"], width=sm_width), opacity=smooth_opacity))
+    fig.add_trace(
+        go.Scatter(
+            x=df.index,
+            y=df["ema"],
+            name="EMA",
+            line=dict(color=method_colors["EMA"], width=sm_width),
+            opacity=smooth_opacity,
+        )
+    )
 if show_savgol:
-    fig.add_trace(go.Scatter(x=df.index, y=df["savgol"], name="SavGol", line=dict(color=method_colors["SavGol"], width=sm_width), opacity=smooth_opacity))
+    fig.add_trace(
+        go.Scatter(
+            x=df.index,
+            y=df["savgol"],
+            name="SavGol",
+            line=dict(color=method_colors["SavGol"], width=sm_width),
+            opacity=smooth_opacity,
+        )
+    )
 if show_loess:
-    fig.add_trace(go.Scatter(x=df.index, y=df["loess"], name="LOESS", line=dict(color=method_colors["LOESS"], width=sm_width), opacity=smooth_opacity))
+    fig.add_trace(
+        go.Scatter(
+            x=df.index,
+            y=df["loess"],
+            name="LOESS",
+            line=dict(color=method_colors["LOESS"], width=sm_width),
+            opacity=smooth_opacity,
+        )
+    )
 if show_gauss:
-    fig.add_trace(go.Scatter(x=df.index, y=df["gaussian"], name="Gaussian", line=dict(color=method_colors["Gaussian"], width=sm_width), opacity=smooth_opacity))
+    fig.add_trace(
+        go.Scatter(
+            x=df.index,
+            y=df["gaussian"],
+            name="Gaussian",
+            line=dict(color=method_colors["Gaussian"], width=sm_width),
+            opacity=smooth_opacity,
+        )
+    )
 if show_kalman:
-    fig.add_trace(go.Scatter(x=df.index, y=df["kalman"], name="Kalman", line=dict(color=method_colors["Kalman"], width=sm_width), opacity=smooth_opacity))
+    fig.add_trace(
+        go.Scatter(
+            x=df.index,
+            y=df["kalman"],
+            name="Kalman",
+            line=dict(color=method_colors["Kalman"], width=sm_width),
+            opacity=smooth_opacity,
+        )
+    )
 
 fig.update_layout(
     title="Smoothing Methods Comparison",
