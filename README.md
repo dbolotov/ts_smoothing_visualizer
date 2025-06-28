@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="app_screenshot.png" width="600" alt="App Preview">
+  <img src="app_preview.gif" width="600" alt="App Preview">
 </p>
 
 
