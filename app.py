@@ -378,51 +378,100 @@ with right_col:
     st.plotly_chart(fig, use_container_width=True)
 
     # --- Diagnostics Table ---
+
     def total_variation(series):
         return np.sum(np.abs(np.diff(series)))
 
+    def rpr(smoothed, original):
+        return total_variation(smoothed) / total_variation(original)
+
     tv_orig = total_variation(df["value"])
-    std_orig = df["value"].std()
 
     methods = []
-    tvr_vals = []
-    sdr_vals = []
+    rpr_vals = []
 
     if show_ma:
         methods.append("MA")
-        tvr_vals.append(1 - total_variation(df["ma"]) / tv_orig)
-        sdr_vals.append(1 - df["ma"].std() / std_orig)
+        rpr_vals.append(rpr(df["ma"], df["value"]))
     if show_ema:
         methods.append("EMA")
-        tvr_vals.append(1 - total_variation(df["ema"]) / tv_orig)
-        sdr_vals.append(1 - df["ema"].std() / std_orig)
+        rpr_vals.append(rpr(df["ema"], df["value"]))
     if show_savgol:
         methods.append("SavGol")
-        tvr_vals.append(1 - total_variation(df["savgol"]) / tv_orig)
-        sdr_vals.append(1 - df["savgol"].std() / std_orig)
+        rpr_vals.append(rpr(df["savgol"], df["value"]))
     if show_loess:
         methods.append("LOESS")
-        tvr_vals.append(1 - total_variation(df["loess"]) / tv_orig)
-        sdr_vals.append(1 - df["loess"].std() / std_orig)
+        rpr_vals.append(rpr(df["loess"], df["value"]))
     if show_gauss:
         methods.append("Gaussian")
-        tvr_vals.append(1 - total_variation(df["gaussian"]) / tv_orig)
-        sdr_vals.append(1 - df["gaussian"].std() / std_orig)
+        rpr_vals.append(rpr(df["gaussian"], df["value"]))
     if show_kalman:
         methods.append("Kalman")
-        tvr_vals.append(1 - total_variation(df["kalman"]) / tv_orig)
-        sdr_vals.append(1 - df["kalman"].std() / std_orig)
+        rpr_vals.append(rpr(df["kalman"], df["value"]))
 
     diag_df = pd.DataFrame(
         {
-            method: [f"{tvr:.2f}", f"{sdr:.2f}"]
-            for method, tvr, sdr in zip(methods, tvr_vals, sdr_vals)
+            method: [f"{r:.2f}"]
+            for method, r in zip(methods, rpr_vals)
         },
-        index=["TVR", "SDR"],
+        index=["RPR"],
     )
 
     st.dataframe(diag_df, use_container_width=False)
     st.caption(
-        "**TVR (Total Variance Reduction)** measures how much each method reduces jaggedness in the signal. Higher values mean smoother output.\n"
-        "**SDR (Standard Deviation Reduction)** compares variability before and after smoothing. Higher values mean more consistent, less noisy signals."
+        "**RPR (Roughness Preservation Ratio)** compares jaggedness after smoothing to the original. Lower values mean more smoothing."
     )
+
+
+# with right_col:
+#     st.plotly_chart(fig, use_container_width=True)
+
+#     # --- Diagnostics Table ---
+#     def total_variation(series):
+#         return np.sum(np.abs(np.diff(series)))
+
+#     tv_orig = total_variation(df["value"])
+#     std_orig = df["value"].std()
+
+#     methods = []
+#     tvr_vals = []
+#     sdr_vals = []
+
+#     if show_ma:
+#         methods.append("MA")
+#         tvr_vals.append(1 - total_variation(df["ma"]) / tv_orig)
+#         sdr_vals.append(1 - df["ma"].std() / std_orig)
+#     if show_ema:
+#         methods.append("EMA")
+#         tvr_vals.append(1 - total_variation(df["ema"]) / tv_orig)
+#         sdr_vals.append(1 - df["ema"].std() / std_orig)
+#     if show_savgol:
+#         methods.append("SavGol")
+#         tvr_vals.append(1 - total_variation(df["savgol"]) / tv_orig)
+#         sdr_vals.append(1 - df["savgol"].std() / std_orig)
+#     if show_loess:
+#         methods.append("LOESS")
+#         tvr_vals.append(1 - total_variation(df["loess"]) / tv_orig)
+#         sdr_vals.append(1 - df["loess"].std() / std_orig)
+#     if show_gauss:
+#         methods.append("Gaussian")
+#         tvr_vals.append(1 - total_variation(df["gaussian"]) / tv_orig)
+#         sdr_vals.append(1 - df["gaussian"].std() / std_orig)
+#     if show_kalman:
+#         methods.append("Kalman")
+#         tvr_vals.append(1 - total_variation(df["kalman"]) / tv_orig)
+#         sdr_vals.append(1 - df["kalman"].std() / std_orig)
+
+#     diag_df = pd.DataFrame(
+#         {
+#             method: [f"{tvr:.2f}", f"{sdr:.2f}"]
+#             for method, tvr, sdr in zip(methods, tvr_vals, sdr_vals)
+#         },
+#         index=["TVR", "SDR"],
+#     )
+
+#     st.dataframe(diag_df, use_container_width=False)
+#     st.caption(
+#         "**TVR (Total Variance Reduction)** measures how much each method reduces jaggedness in the signal. Higher values mean smoother output.\n"
+#         "**SDR (Standard Deviation Reduction)** compares variability before and after smoothing. Higher values mean more consistent, less noisy signals."
+#     )
