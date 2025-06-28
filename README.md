@@ -9,18 +9,14 @@
 
 This repository contains the code for a Streamlit app that visualizes time series smoothing techniques. It includes both real and synthetic datasets and lets you compare how different methods behave with adjustable parameters.
 
+*Note: The app was developed while writing this Medium article: [Six Approaches to Time Series Smoothing](https://medium.com/@dmitriy.bolotov/six-approaches-to-time-series-smoothing-cc3ea9d6b64f)*
+
 **Features**
 - Adjustable smoothing parameters
 - Visual comparison across methods
 - 5 datasets
 
-**Supported methods**
-- Moving Average
-- Exponential Moving Average
-- Savitzky-Golay
-- LOESS
-- Gaussian Filter
-- Kalman Filter
+**Supported methods**: Moving Average, Exponential Moving Average, Savitzky-Golay, LOESS, Gaussian Filter, Kalman Filter
 
 
 ## Datasets
