@@ -99,8 +99,8 @@ with left_col:
         "[LOESS](https://en.wikipedia.org/wiki/Local_regression), "
         "[Gaussian Filter](https://en.wikipedia.org/wiki/Gaussian_filter), and "
         "[Kalman Filter](https://en.wikipedia.org/wiki/Kalman_filter).\n\n"
-        "Use the controls to select a dataset, adjust parameters and compare how each method smooths a noisy signal in real time."
-    )
+        "Use the controls to select a dataset, adjust parameters and compare how each method smooths a noisy signal in real time.\n\n"
+        "*For a practical overview of the smoothing techniques, see the accompanying [Medium article](https://medium.com/@dmitriy.bolotov/six-approaches-to-time-series-smoothing-cc3ea9d6b64f).*"    )
 
     st.subheader("Data Parameters")
     st.caption(
