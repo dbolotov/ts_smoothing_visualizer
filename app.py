@@ -31,48 +31,52 @@ dataset_options = {
 st.set_page_config(layout="wide")
 
 # --- Styling ---
-st.markdown(
-    """
-    <style>
-    .method-label {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
-    .color-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        display: inline-block;
-    }
-    .stSlider > label {
-        font-size: 0.55rem;
-        font-weight: 500;
-        color: #333;
-        margin-bottom: 0.3rem;
-    }
-    .stSlider .css-1y4p8pa {
-        font-size: 0.65rem !important;
-    }
-    .stSlider .css-1cpxqw2 {
-        padding-top: 0.2rem;
-        padding-bottom: 0.2rem;
-    }
-    .left-panel {
-        background-color: #f4f6fa;
-        padding: 20px;
-        border-radius: 6px;
-    }
+with open("styles.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-    .block-container {
-        padding-top: 1rem !important;
-    }
-    </style>
-""",
-    unsafe_allow_html=True,
-)
+
+# st.markdown(
+#     """
+#     <style>
+#     .method-label {
+#         display: flex;
+#         align-items: center;
+#         gap: 6px;
+#         font-weight: 600;
+#         font-size: 0.9rem;
+#     }
+#     .color-dot {
+#         width: 10px;
+#         height: 10px;
+#         border-radius: 50%;
+#         display: inline-block;
+#     }
+#     .stSlider > label {
+#         font-size: 0.55rem;
+#         font-weight: 500;
+#         color: #333;
+#         margin-bottom: 0.3rem;
+#     }
+#     .stSlider .css-1y4p8pa {
+#         font-size: 0.65rem !important;
+#     }
+#     .stSlider .css-1cpxqw2 {
+#         padding-top: 0.2rem;
+#         padding-bottom: 0.2rem;
+#     }
+#     .left-panel {
+#         background-color: #f4f6fa;
+#         padding: 20px;
+#         border-radius: 6px;
+#     }
+
+#     .block-container {
+#         padding-top: 1rem !important;
+#     }
+#     </style>
+# """,
+#     unsafe_allow_html=True,
+# )
 
 # --- Colors ---
 method_colors = {
