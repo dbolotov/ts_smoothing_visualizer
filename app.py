@@ -60,10 +60,10 @@ with left_col:
 
     st.markdown("##### Explore how six smoothing techniques transform noisy time series data.")
 
-    with st.expander("Documentation", expanded=True):
-        tab_overview, tab_data, tab_ma, tab_ema, tab_sg, tab_loess, tab_gf, tab_kf = st.tabs([
-            "Overview", "Datasets", "Moving Average", "Exponential MA", "Savitsky-Golay", 
-            "LOESS", "Gaussian Filter", "Kalman Filter"])
+    with st.expander("Documentation", expanded=False):
+        tab_overview, tab_data, tab_ma, tab_ema, tab_sg, tab_loess, tab_gf, tab_kf, tab_diag = st.tabs([
+            "Overview", "Datasets", "Moving Average", "Exponential MA", "SavGol", 
+            "LOESS", "Gaussian", "Kalman", "Diagnostics"])
 
         with tab_overview:
             st.markdown(load_markdown("docs/overview.md"))
@@ -81,144 +81,146 @@ with left_col:
             st.markdown(load_markdown("docs/gf.md"))
         with tab_kf:
             st.markdown(load_markdown("docs/kf.md"))
+        with tab_diag:
+            st.markdown(load_markdown("docs/diag.md"))
 
+    with st.expander("Data Parameters", expanded=True):
 
-    st.subheader("Data Parameters")
-    st.caption(
-        "Select the dataset and adjust the amount of data visualized, as well as how visible the raw signal is."
-    )
-    dp_col1, dp_col2, dp_col3 = st.columns([1, 1, 1])
-    with dp_col1:
-        selected_label = st.selectbox("Dataset", options=list(dataset_options.keys()))
-        dataset_name = dataset_options[selected_label]
-        df_full = load_dataset(dataset_name)
+        # st.subheader("Data Parameters")
+        st.caption(
+            "Select the dataset and adjust the amount of data visualized, as well as how visible the raw signal is."
+        )
+        dp_col1, dp_col2, dp_col3 = st.columns([1, 1, 1])
+        with dp_col1:
+            selected_label = st.selectbox("Dataset", options=list(dataset_options.keys()))
+            dataset_name = dataset_options[selected_label]
+            df_full = load_dataset(dataset_name)
 
-    # Dataset blurbs
-    dataset_blurbs = {
-        "Sunspots": "Daily counts of sunspots on the Sun's surface.",
-        "Noisy Sine": "A synthetic sine wave with added noise.",
-        "Humidity": "Relative humidity readings from a long-term weather monitoring station.",
-        "Wind Speed": "Wind speed readings (m/s) from a long-term weather monitoring station.",
-        "Process Anomalies": "Synthetic industrial process with 4 operating modes and 3 injected anomalies.",
-    }
-    # Show dataset blurb
-    st.caption(dataset_blurbs.get(selected_label, ""))
+        # Dataset blurbs
+        dataset_blurbs = {
+            "Sunspots": "Daily counts of sunspots on the Sun's surface.",
+            "Noisy Sine": "A synthetic sine wave with added noise.",
+            "Humidity": "Relative humidity readings from a long-term weather monitoring station.",
+            "Wind Speed": "Wind speed readings (m/s) from a long-term weather monitoring station.",
+            "Process Anomalies": "Synthetic industrial process with 4 operating modes and 3 injected anomalies.",
+        }
+        # Show dataset blurb
+        st.caption(dataset_blurbs.get(selected_label, ""))
 
-    with dp_col2:
-        subset_size = st.slider(
-            "Points to display from start of series",
-            min_value=50,
-            max_value=len(df_full),
-            value=len(df_full),
-            step=20,
-        )
-    with dp_col3:
-        signal_opacity = st.slider("Noisy signal opacity", 0.0, 1.0, 0.3, step=0.05)
-    df = df_full.iloc[:subset_size].copy()
+        with dp_col2:
+            subset_size = st.slider(
+                "Points to display from start of series",
+                min_value=50,
+                max_value=len(df_full),
+                value=len(df_full),
+                step=20,
+            )
+        with dp_col3:
+            signal_opacity = st.slider("Noisy signal opacity", 0.0, 1.0, 0.3, step=0.05)
+        df = df_full.iloc[:subset_size].copy()
 
-    st.subheader("Smoothing Parameters")
-    st.caption(
-        "Select which methods to display and adjust their smoothing parameters below."
-    )
+    with st.expander("Smoothing Parameters", expanded=True):
+        # st.subheader("Smoothing Parameters")
+        st.caption("Select which methods to display and adjust their smoothing parameters below.")
 
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
+        col1, col2, col3, col4, col5, col6 = st.columns(6)
 
-    with col1:
-        show_ma = st.checkbox("", value=False, key="show_ma")
-        st.markdown(
-            f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["MA"]}"></span>Moving Avg</div>',
-            unsafe_allow_html=True,
-        )
-        ma_window = st.slider(
-            "Window",
-            3,
-            51,
-            15,
-            step=2,
-            key="ma",
-            help=("Number of data points averaged at each step.\n\n"
-            "Larger = smoother but more laggy."),
-        )
+        with col1:
+            show_ma = st.checkbox("", value=False, key="show_ma")
+            st.markdown(
+                f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["MA"]}"></span>Moving Avg</div>',
+                unsafe_allow_html=True,
+            )
+            ma_window = st.slider(
+                "Window",
+                3,
+                51,
+                15,
+                step=2,
+                key="ma",
+                help=("Number of data points averaged at each step.\n\n"
+                "Larger = smoother but more laggy."),
+            )
 
-    with col2:
-        show_ema = st.checkbox("", value=True, key="show_ema")
-        st.markdown(
-            f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["EMA"]}"></span>EMA</div>',
-            unsafe_allow_html=True,
-        )
-        ema_alpha = st.slider(
-            "Alpha",
-            0.01,
-            1.0,
-            0.1,
-            step=0.01,
-            key="ema",
-            help=("Smoothing factor between 0 and 1.\n\n"
-            "Higher = quicker response, less smoothing."),
-        )
+        with col2:
+            show_ema = st.checkbox("", value=True, key="show_ema")
+            st.markdown(
+                f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["EMA"]}"></span>EMA</div>',
+                unsafe_allow_html=True,
+            )
+            ema_alpha = st.slider(
+                "Alpha",
+                0.01,
+                1.0,
+                0.1,
+                step=0.01,
+                key="ema",
+                help=("Smoothing factor between 0 and 1.\n\n"
+                "Higher = quicker response, less smoothing."),
+            )
 
-    with col3:
-        show_savgol = st.checkbox("", value=False, key="show_sg")
-        st.markdown(
-            f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["SavGol"]}"></span>SavGol</div>',
-            unsafe_allow_html=True,
-        )
-        sg_window = st.slider(
-            "Window",
-            5,
-            51,
-            15,
-            step=2,
-            key="sg_win",
-            help=("Number of points used in each fit (must be odd).\n\n"),
-        )
-        sg_poly = st.slider("Poly", 1, 5, 2, key="sg_poly",
-                            help=("Controls how flexible the fit is.\n\n"
-                            "Higher = more responsive to structure."))
+        with col3:
+            show_savgol = st.checkbox("", value=False, key="show_sg")
+            st.markdown(
+                f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["SavGol"]}"></span>SavGol</div>',
+                unsafe_allow_html=True,
+            )
+            sg_window = st.slider(
+                "Window",
+                5,
+                51,
+                15,
+                step=2,
+                key="sg_win",
+                help=("Number of points used in each fit (must be odd).\n\n"),
+            )
+            sg_poly = st.slider("Poly", 1, 5, 2, key="sg_poly",
+                                help=("Controls how flexible the fit is.\n\n"
+                                "Higher = more responsive to structure."))
 
-    with col4:
-        show_loess = st.checkbox("", value=False, key="show_loess")
-        st.markdown(
-            f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["LOESS"]}"></span>LOESS</div>',
-            unsafe_allow_html=True,
-        )
-        loess_frac = st.slider(
-            "Frac",
-            0.01,
-            0.5,
-            0.05,
-            step=0.01,
-            key="loess",
-            help=("**Frac**: proportion of the dataset used to compute each local regression."),
-        )
+        with col4:
+            show_loess = st.checkbox("", value=False, key="show_loess")
+            st.markdown(
+                f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["LOESS"]}"></span>LOESS</div>',
+                unsafe_allow_html=True,
+            )
+            loess_frac = st.slider(
+                "Frac",
+                0.01,
+                0.5,
+                0.05,
+                step=0.01,
+                key="loess",
+                help=("**Frac**: proportion of the dataset used to compute each local regression."),
+            )
 
-    with col5:
-        show_gauss = st.checkbox("", value=False, key="show_gauss")
-        st.markdown(
-            f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["Gaussian"]}"></span>Gaussian</div>',
-            unsafe_allow_html=True,
-        )
-        gauss_sigma = st.slider(
-            "Sigma",
-            0.1,
-            10.0,
-            2.0,
-            step=0.1,
-            key="gauss",
-            help=("**Sigma**: standard deviation of the Gaussian kernel."),
-        )
+        with col5:
+            show_gauss = st.checkbox("", value=False, key="show_gauss")
+            st.markdown(
+                f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["Gaussian"]}"></span>Gaussian</div>',
+                unsafe_allow_html=True,
+            )
+            gauss_sigma = st.slider(
+                "Sigma",
+                0.1,
+                10.0,
+                2.0,
+                step=0.1,
+                key="gauss",
+                help=("**Sigma**: standard deviation of the Gaussian kernel."),
+            )
 
-    with col6:
-        show_kalman = st.checkbox("", value=True, key="show_kf")
-        st.markdown(
-            f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["Kalman"]}"></span>Kalman</div>',
-            unsafe_allow_html=True,
-        )
-        kf_transition_noise = st.slider("Tr std", 0.001, 1.0, 0.05, step=0.01, key="kf_trans",
-            help=( "Transition standard deviation. Expected noise in the process’s internal dynamics."),
-        )
-        kf_obs_noise = st.slider("Obs std", 0.001, 1.0, 0.2, step=0.01, key="kf_obs",
-            help=("Observation standard deviation; expected noise in the observed data."))
+        with col6:
+            show_kalman = st.checkbox("", value=True, key="show_kf")
+            st.markdown(
+                f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["Kalman"]}"></span>Kalman</div>',
+                unsafe_allow_html=True,
+            )
+            kf_transition_noise = st.slider("Tr std", 0.001, 1.0, 0.05, step=0.01, key="kf_trans",
+                help=( "Transition standard deviation. Expected noise in the process’s internal dynamics."),
+            )
+            kf_obs_noise = st.slider("Obs std", 0.001, 1.0, 0.2, step=0.01, key="kf_obs",
+                help=("Observation standard deviation; expected noise in the observed data."))
 
 # --- Smoothing Calculations ---
 df["ma"] = df["value"].rolling(window=ma_window, center=True).mean().bfill().ffill()
@@ -357,6 +359,7 @@ with right_col:
         methods.append("Kalman")
         rpr_vals.append(rpr(df["kalman"], df["value"]))
 
+    st.markdown("Diagnostics:")
     diag_df = pd.DataFrame(
         {
             method: [f"{r:.2f}"]
@@ -366,9 +369,10 @@ with right_col:
     )
 
     st.dataframe(diag_df, use_container_width=False)
-    st.caption(
-        "**RPR (Roughness Preservation Ratio)** compares jaggedness after smoothing to the original. Lower values mean more smoothing."
-    )
+
+    # st.caption(
+    #     "**RPR (Roughness Preservation Ratio)** compares jaggedness after smoothing to the original. Lower values mean more smoothing."
+    # )
 
 
 # with right_col:
