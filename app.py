@@ -30,16 +30,8 @@ dataset_options = {
     "Process Anomalies": "process_anomalies",
 }
 
-# Load data
+# --- Base Directory ---
 BASE_DIR = os.path.dirname(__file__)
-
-# Set Layout to "wide"
-st.set_page_config(layout="wide")
-
-# --- Styling ---
-with open("styles.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
 
 # --- Colors ---
 method_colors = {
@@ -52,11 +44,25 @@ method_colors = {
     "Kalman": "#17becf",
 }
 
-st.title("Time Series Smoothing: an Interactive Visualizer")
+
+# --- Styling ---
+with open("styles.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+
+# --- Layout and Page Config ---
+st.set_page_config(
+    layout="wide",
+    page_title="Time Series Smoothing"
+    # page_icon="images/favicon.png"
+)
+
 
 left_col, spacer, right_col = st.columns([5, 0.5, 6])
 
 with left_col:
+
+    st.markdown('<div class="boxed-title">Time Series Smoothing: an Interactive Visualizer</div>', unsafe_allow_html=True)
 
     st.markdown("##### Explore how six smoothing techniques transform noisy time series data.")
 
@@ -120,8 +126,7 @@ with left_col:
         df = df_full.iloc[:subset_size].copy()
 
     with st.expander("Smoothing Parameters", expanded=True):
-        # st.subheader("Smoothing Parameters")
-        st.caption("Select which methods to display and adjust their smoothing parameters below.")
+        st.caption("Select which methods to display and adjust their smoothing parameters.")
 
         col1, col2, col3, col4, col5, col6 = st.columns(6)
 
@@ -131,13 +136,7 @@ with left_col:
                 f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["MA"]}"></span>Moving Avg</div>',
                 unsafe_allow_html=True,
             )
-            ma_window = st.slider(
-                "Window",
-                3,
-                51,
-                15,
-                step=2,
-                key="ma",
+            ma_window = st.slider("Window", 3, 51, 15, step=2, key="ma",
                 help=("Number of data points averaged at each step.\n\n"
                 "Larger = smoother but more laggy."),
             )
@@ -148,13 +147,7 @@ with left_col:
                 f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["EMA"]}"></span>EMA</div>',
                 unsafe_allow_html=True,
             )
-            ema_alpha = st.slider(
-                "Alpha",
-                0.01,
-                1.0,
-                0.1,
-                step=0.01,
-                key="ema",
+            ema_alpha = st.slider("Alpha", 0.01, 1.0, 0.1, step=0.01, key="ema",
                 help=("Smoothing factor between 0 and 1.\n\n"
                 "Higher = quicker response, less smoothing."),
             )
@@ -165,13 +158,7 @@ with left_col:
                 f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["SavGol"]}"></span>SavGol</div>',
                 unsafe_allow_html=True,
             )
-            sg_window = st.slider(
-                "Window",
-                5,
-                51,
-                15,
-                step=2,
-                key="sg_win",
+            sg_window = st.slider("Window", 5, 51, 15, step=2, key="sg_win",
                 help=("Number of points used in each fit (must be odd).\n\n"),
             )
             sg_poly = st.slider("Poly", 1, 5, 2, key="sg_poly",
@@ -184,13 +171,7 @@ with left_col:
                 f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["LOESS"]}"></span>LOESS</div>',
                 unsafe_allow_html=True,
             )
-            loess_frac = st.slider(
-                "Frac",
-                0.01,
-                0.5,
-                0.05,
-                step=0.01,
-                key="loess",
+            loess_frac = st.slider("Frac", 0.01, 0.5, 0.05, step=0.01, key="loess",
                 help=("**Frac**: proportion of the dataset used to compute each local regression."),
             )
 
@@ -200,13 +181,7 @@ with left_col:
                 f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["Gaussian"]}"></span>Gaussian</div>',
                 unsafe_allow_html=True,
             )
-            gauss_sigma = st.slider(
-                "Sigma",
-                0.1,
-                10.0,
-                2.0,
-                step=0.1,
-                key="gauss",
+            gauss_sigma = st.slider("Sigma", 0.1, 10.0, 2.0, step=0.1,key="gauss",
                 help=("**Sigma**: standard deviation of the Gaussian kernel."),
             )
 
