@@ -33,3 +33,17 @@
 .block-container {
     padding-top: 1rem !important;
 }
+
+/* --- Title Box --- */
+.boxed-title {
+    background-color: #000000;
+    color: #FFFDF5;
+    padding: 0.5rem 1rem;
+    border-radius: 0.31rem;
+    display: inline-block;
+    font-size: 1.66rem;
+    font-weight: 600;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    margin-bottom: 1rem;
+    border: none;
+}
