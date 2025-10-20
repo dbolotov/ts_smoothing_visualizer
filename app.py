@@ -8,17 +8,20 @@ from statsmodels.nonparametric.smoothers_lowess import lowess
 from scipy.ndimage import gaussian_filter1d
 from pykalman import KalmanFilter
 
-# Load data
-BASE_DIR = os.path.dirname(__file__)
 
 
+# --- Functions ---
 def load_dataset(name):
     path = os.path.join(BASE_DIR, "data", f"{name}.csv")
     df = pd.read_csv(path, parse_dates=["timestamp"])
     df.set_index("timestamp", inplace=True)
     return df
 
+def load_markdown(path: str) -> str:
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
 
+# --- Datasets ---
 dataset_options = {
     "Sunspots": "sunspots",
     "Noisy Sine": "noisy_sine",
@@ -27,6 +30,9 @@ dataset_options = {
     "Process Anomalies": "process_anomalies",
 }
 
+# Load data
+BASE_DIR = os.path.dirname(__file__)
+
 # Set Layout to "wide"
 st.set_page_config(layout="wide")
 
@@ -34,49 +40,6 @@ st.set_page_config(layout="wide")
 with open("styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-
-# st.markdown(
-#     """
-#     <style>
-#     .method-label {
-#         display: flex;
-#         align-items: center;
-#         gap: 6px;
-#         font-weight: 600;
-#         font-size: 0.9rem;
-#     }
-#     .color-dot {
-#         width: 10px;
-#         height: 10px;
-#         border-radius: 50%;
-#         display: inline-block;
-#     }
-#     .stSlider > label {
-#         font-size: 0.55rem;
-#         font-weight: 500;
-#         color: #333;
-#         margin-bottom: 0.3rem;
-#     }
-#     .stSlider .css-1y4p8pa {
-#         font-size: 0.65rem !important;
-#     }
-#     .stSlider .css-1cpxqw2 {
-#         padding-top: 0.2rem;
-#         padding-bottom: 0.2rem;
-#     }
-#     .left-panel {
-#         background-color: #f4f6fa;
-#         padding: 20px;
-#         border-radius: 6px;
-#     }
-
-#     .block-container {
-#         padding-top: 1rem !important;
-#     }
-#     </style>
-# """,
-#     unsafe_allow_html=True,
-# )
 
 # --- Colors ---
 method_colors = {
@@ -94,17 +57,31 @@ st.title("Time Series Smoothing: an Interactive Visualizer")
 left_col, spacer, right_col = st.columns([5, 0.5, 6])
 
 with left_col:
-    st.markdown(
-        "Explore how six smoothing techniques transform noisy time series data.\n\n"
-        "Methods: "
-        "[Moving Average](https://en.wikipedia.org/wiki/Moving_average), "
-        "[Exponential MA](https://en.wikipedia.org/wiki/Exponential_smoothing), "
-        "[Savitzky-Golay](https://en.wikipedia.org/wiki/Savitzky–Golay_filter), "
-        "[LOESS](https://en.wikipedia.org/wiki/Local_regression), "
-        "[Gaussian Filter](https://en.wikipedia.org/wiki/Gaussian_filter), and "
-        "[Kalman Filter](https://en.wikipedia.org/wiki/Kalman_filter).\n\n"
-        "Use the controls to select a dataset, adjust parameters and compare how each method smooths a noisy signal in real time.\n\n"
-        "*For a practical overview of the smoothing techniques, see the accompanying [Medium article](https://medium.com/@dmitriy.bolotov/six-approaches-to-time-series-smoothing-cc3ea9d6b64f).*"    )
+
+    st.markdown("##### Explore how six smoothing techniques transform noisy time series data.")
+
+    with st.expander("Documentation", expanded=True):
+        tab_overview, tab_data, tab_ma, tab_ema, tab_sg, tab_loess, tab_gf, tab_kf = st.tabs([
+            "Overview", "Datasets", "Moving Average", "Exponential MA", "Savitsky-Golay", 
+            "LOESS", "Gaussian Filter", "Kalman Filter"])
+
+        with tab_overview:
+            st.markdown(load_markdown("docs/overview.md"))
+        with tab_data:
+            st.markdown(load_markdown("docs/datasets.md"))
+        with tab_ma:
+            st.markdown(load_markdown("docs/ma.md"))
+        with tab_ema:
+            st.markdown(load_markdown("docs/ema.md"))
+        with tab_sg:
+            st.markdown(load_markdown("docs/sg.md"))
+        with tab_loess:
+            st.markdown(load_markdown("docs/loess.md"))
+        with tab_gf:
+            st.markdown(load_markdown("docs/gf.md"))
+        with tab_kf:
+            st.markdown(load_markdown("docs/kf.md"))
+
 
     st.subheader("Data Parameters")
     st.caption(
@@ -159,12 +136,8 @@ with left_col:
             15,
             step=2,
             key="ma",
-            help=(
-    "**Moving Average (Rolling Mean)**: Replaces each point with the average of nearby values in a fixed window.\n"
-    "Simple and fast, it removes short-term fluctuations and highlights trends.\n"
-    "Limitations: Introduces lag and blunts sharp features.\n\n"
-    "**Window Size**: Number of data points averaged at each step. Larger = smoother but laggier."
-),
+            help=("Number of data points averaged at each step.\n\n"
+            "Larger = smoother but more laggy."),
         )
 
     with col2:
@@ -180,12 +153,8 @@ with left_col:
             0.1,
             step=0.01,
             key="ema",
-            help=(
-    "**Exponential Moving Average (EMA)**: Averages past values with more weight on recent data.\n"
-    "Responsive and causal (only uses past and present), good for real-time use.\n"
-    "Limitations: Can still lag and smooth too little if alpha is too small.\n\n"
-    "**Alpha**: Smoothing factor between 0 and 1. Higher = quicker response, less smoothing."
-),
+            help=("Smoothing factor between 0 and 1.\n\n"
+            "Higher = quicker response, less smoothing."),
         )
 
     with col3:
@@ -201,15 +170,11 @@ with left_col:
             15,
             step=2,
             key="sg_win",
-            help=(
-                "**Savitzky–Golay Filter**: Fits a polynomial to a local window.\n"
-                "Good for preserving local features like peaks and valleys better than moving average.\n"
-                "Limitations: can amplify noise if parameters are poorly chosen; requires enough points to support the polynomial order.\n\n"
-"**Window Size**: Number of points used in each fit (must be odd).\n\n"
-    "**Polynomial Degree**: Controls how flexible the fit is; higher = more responsive to structure."
-            ),
+            help=("Number of points used in each fit (must be odd).\n\n"),
         )
-        sg_poly = st.slider("Poly", 1, 5, 2, key="sg_poly")
+        sg_poly = st.slider("Poly", 1, 5, 2, key="sg_poly",
+                            help=("Controls how flexible the fit is.\n\n"
+                            "Higher = more responsive to structure."))
 
     with col4:
         show_loess = st.checkbox("", value=False, key="show_loess")
@@ -224,12 +189,7 @@ with left_col:
             0.05,
             step=0.01,
             key="loess",
-            help=(
-                "**LOESS (LOWESS)**: Fits a local regression for each point using neighboring data."
-                "Good for flexible trend fitting, especially for nonlinear or slowly-varying trends.\n"
-                "Limitations: slower for large datasets, may overfit if fraction is too low.\n\n"
-                "**Frac**: proportion of the dataset used to compute each local regression."
-            ),
+            help=("**Frac**: proportion of the dataset used to compute each local regression."),
         )
 
     with col5:
@@ -245,12 +205,7 @@ with left_col:
             2.0,
             step=0.1,
             key="gauss",
-            help=(
-                "**Gaussian Filter**: Applies a weighted average where weights follow a Gaussian distribution.\n"
-                "Good for reducing noise while still preserving overall shape.\n"
-                "Limitations: smoothing can blur sharp transitions.\n\n"
-                "**Sigma**: standard deviation of the Gaussian kernel, which controls the smoothing amount."
-            ),
+            help=("**Sigma**: standard deviation of the Gaussian kernel."),
         )
 
     with col6:
@@ -259,22 +214,11 @@ with left_col:
             f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["Kalman"]}"></span>Kalman</div>',
             unsafe_allow_html=True,
         )
-        kf_transition_noise = st.slider(
-            "Tr std",
-            0.001,
-            1.0,
-            0.05,
-            step=0.01,
-            key="kf_trans",
-            help=(
-                "**Kalman Filter**: Uses a probabilistic model to estimate system state from noisy observations.\n"
-                "Good for dynamic smoothing, handling noisy or missing data, and adapting over time.\n"
-                "Limitations: more complex, sensitive to parameter tuning, and assumes linear dynamics.\n\n"
-                "**Tr std**: Transition standard deviation. Expected noise in the process’s internal dynamics.\n\n"
-                "**Obs std**: Observation standard deviation. Expected noise in the observed data."
-            ),
+        kf_transition_noise = st.slider("Tr std", 0.001, 1.0, 0.05, step=0.01, key="kf_trans",
+            help=( "Transition standard deviation. Expected noise in the process’s internal dynamics."),
         )
-        kf_obs_noise = st.slider("Obs std", 0.001, 1.0, 0.2, step=0.01, key="kf_obs")
+        kf_obs_noise = st.slider("Obs std", 0.001, 1.0, 0.2, step=0.01, key="kf_obs",
+            help=("Observation standard deviation; expected noise in the observed data."))
 
 # --- Smoothing Calculations ---
 df["ma"] = df["value"].rolling(window=ma_window, center=True).mean().bfill().ffill()

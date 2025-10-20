@@ -1,0 +1,5 @@
+- Sunspots: Daily counts of sunspots on the Sun's surface.
+- Noisy Sine: A synthetic sine wave with added noise.
+- Humidity: Relative humidity readings from a long-term weather monitoring station.
+- Wind Speed: Wind speed readings (m/s) from a long-term weather monitoring station.
+- Process Anomalies: Synthetic industrial process with 4 operating modes and 3 injected anomalies.
