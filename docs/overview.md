@@ -8,12 +8,6 @@ Use the controls to select a dataset, adjust parameters, and compare how each me
 - Adjust each method’s parameters to see their effect on the signal
 - Compare curves visually and review roughness metrics in the diagnostics table
 
-**Use Cases**
-- Learn how common smoothing techniques differ in behavior and effect  
-- Explore trade-offs between responsiveness and noise reduction  
-- Identify which approaches work best for different data types  
-- Visualize and explain smoothing concepts for teaching or client demos  
-
 *For an overview of the smoothing techniques, see the accompanying [Medium article](https://medium.com/@dmitriy.bolotov/six-approaches-to-time-series-smoothing-cc3ea9d6b64f).*  
 
 *[View source code on GitHub](https://github.com/dbolotov/ts_smoothing_visualizer)*
